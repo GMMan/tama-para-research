@@ -6,6 +6,7 @@ This repo contains documentation on various aspects of Tamagotchi Paradise.
 ## Formats
 - [Sprites](formats/sprites.md)
 - [Archive](formats/archive.md)
+- [Archive structure](formats/archive_structure.md)
 - [CJK charset](formats/cjk_charset.txt): consists of 2350 Korean character blocks, Zhuyin symbols,
   parenthesized ideographs, and ~7000 most common Chinese characters (actually somewhat less)
   - For the Chinese characters, see "Unicodeの中の各国重要漢字（色付き、JIS、KS、GBのみ）" on
