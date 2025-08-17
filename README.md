@@ -15,6 +15,7 @@ This repo contains documentation on various aspects of Tamagotchi Paradise.
 - [TCP](protocols/tcp.md)
 
 ## Hardware
+- [SNC73410 product page](https://www.sonix.com.tw/article-en-5180-42810): find microcontroller datasheet and SDK here
 - [Test pad mapping](hardware/testpads.txt)
 - [SNC7320/7330 firmware decrypter](https://github.com/GMMan/sonix-boot-decrypter)
 - [Extracting Hidden Bootrom from Sonix SNC7330](https://github.com/GMMan/snc7330-hidden-rom)
