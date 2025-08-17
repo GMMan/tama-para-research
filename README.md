@@ -13,6 +13,7 @@ This repo contains documentation on various aspects of Tamagotchi Paradise.
 
 ## Protocols
 - [TCP](protocols/tcp.md)
+- [tamacom library](https://github.com/GMMan/tamacom): Python library for TCP
 
 ## Hardware
 - [SNC73410 product page](https://www.sonix.com.tw/article-en-5180-42810): find microcontroller datasheet and SDK here
