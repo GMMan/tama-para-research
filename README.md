@@ -12,6 +12,9 @@ This repo contains documentation on various aspects of Tamagotchi Paradise.
   - For the Chinese characters, see "Unicodeの中の各国重要漢字（色付き、JIS、KS、GBのみ）" on
     https://cjk-code.com/
 
+## Gameplay
+- [Items list](https://github.com/GMMan/tama-paradise-items-list/blob/main/index.md)
+
 ## Protocols
 - [TCP](protocols/tcp.md)
 - [tamacom library](https://github.com/GMMan/tamacom): Python library for TCP
