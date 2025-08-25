@@ -25,6 +25,7 @@ This repo contains documentation on various aspects of Tamagotchi Paradise.
 - [Test pad mapping](hardware/testpads.txt)
 - [SNC7320/7330 firmware decrypter](https://github.com/GMMan/sonix-boot-decrypter)
 - [Extracting Hidden Bootrom from Sonix SNC7330](https://github.com/GMMan/snc7330-hidden-rom)
+- [Flash layout](hardware/flash_layout.md)
 
 Follow me on [Twitter](https://x.com/GMMan_BZFlag) and [Bluesky](https://bsky.app/profile/sudo.caralynx.com)
 for progress.
