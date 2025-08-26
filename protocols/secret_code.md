@@ -47,7 +47,7 @@ The following fields are encoded:
 - The character ID the eyes are from: 16-bit value; 4 characters long
 - The body color: values 0-15 for built-in color, 16 for custom color; 1 character
   long
-- The planet level: values 1-10; 1 character long
+- The planet level: values 0-10; 1 character long
 - Number of friends registered: values 0-12; 1 character long
 - Random number: values 0-46655, generated in a similar way to the save data UID,
   but because no more than the lower 16 bits are used, is effectively based on
