@@ -120,7 +120,7 @@ Note that only the recipient sends the `BREED` command. The initiator will
 capture the player's response locally.
 
 After the choices have been made, each side waits for sync by sending and
-receiving the `SYNC 1` custom commmand. The flow will continue only after both
+receiving the `SYNC 1` custom command. The flow will continue only after both
 sides have synced.
 
 The initiator then sends the playdate result, with the `result` field updated
