@@ -10,7 +10,8 @@ is transmitted.
 Friendship level is determined by what is recorded through previous playdates
 with a particular Paradise character, identified by its device UID and character
 UID. If this is the first time a playdate is being done with a particular
-character, then a base friendship level is determined.
+character, then a base friendship level is determined. Note that the character
+UID stays constant between evolutions, only changing when a new egg is started.
 
 The base friendship level is determined through the characters' species rank.
 The species rank is a rough indication of the amount of care required to
