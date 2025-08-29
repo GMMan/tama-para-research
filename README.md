@@ -11,14 +11,17 @@ This repo contains documentation on various aspects of Tamagotchi Paradise.
   parenthesized ideographs, and ~7000 most common Chinese characters (actually somewhat less)
   - For the Chinese characters, see "Unicodeの中の各国重要漢字（色付き、JIS、KS、GBのみ）" on
     https://cjk-code.com/
+- [Ghost data and screenshots](formats/ghost_data.md)
 
 ## Gameplay
 - [Items list](https://github.com/GMMan/tama-paradise-items-list/blob/main/index.md)
+- [Playdates](gameplay/playdate.md)
 
 ## Protocols
 - [TCP](protocols/tcp.md)
 - [tamacom library](https://github.com/GMMan/tamacom): Python library for TCP
 - [Secret code](protocols/secret_code.md) and [accompanying Python script](protocols/secret_code.py)
+- [Playdates](protocols/playdate.md)
 
 ## Hardware
 - [SNC73410 product page](https://www.sonix.com.tw/article-en-5180-42810): find microcontroller datasheet and SDK here

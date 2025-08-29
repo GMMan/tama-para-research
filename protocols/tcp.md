@@ -215,15 +215,8 @@ depending on the target, and contain random data.
 
 ### Type `0x1`: Playdate
 
-Still under investigation.
-
-Phase 1: friend planet data 0x20000 bytes + 0x14 bytes  
-Phase 2: 2 bytes  
-Phase 3-4: 4 bytes
-
-Custom commands:
-- BREED 0/1
-- SYNC 1/2
+Consists of an exchange of ghost data, playdate data, and a couple of custom
+commands. See [playdate flow doucment](playdate.md) for details.
 
 ### Type `0x2`: Gifts
 
