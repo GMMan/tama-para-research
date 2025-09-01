@@ -204,6 +204,14 @@ Example operation with cancel:
 > CAN
 ```
 
+#### Custom commands
+
+Custom commands are not operations per se, but are used as light-weight messages
+when transmitting simple flags where TCP packets would incur a lot of overhead.
+Custom commands should not be sent by the initiator when it is sending a packet
+to the recipient as this will be mistakenly interpreted as packet data. Custom
+commands do not otherwise affect protocol state.
+
 ## Packet protocols
 
 Note certain actions may be preceded with setting session ID.
