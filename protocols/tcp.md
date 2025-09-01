@@ -88,7 +88,7 @@ struct tcp_chunk_header_t {
 
 - `session_id`: identifies the session that this chunk belongs to
 - `magic`: the characters `TCP`
-- `type`: the lower 4 bits indicate the packet type; bit 5 indicates whether
+- `type`: the lower 4 bits indicate the packet type; the next bit indicates whether
   this packet is for setting the session ID
 - `chunk_index`: the current chunk's index within this packet
 - `chunk_index_comp`: complement of `chunk_index` by subtracting it from 0xff
