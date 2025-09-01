@@ -107,7 +107,7 @@ The actual communication does not include these markers.
 #### Echo
 
 To detect that the peer is ready to receive, an echo can be sent. Generally
-echoes are sent at 2000-tick intervals. The peer has up to 500 ticks to respond,
+echoes are sent at 2000ms intervals. The peer has up to 500ms to respond,
 and the operation is tried up to three times before failing due to timeout.
 
 ```
@@ -136,9 +136,9 @@ operation has been cancelled. `CAN` can be issued by either peers.
 
 The recipient should validate the chunk after
 reception and decryption to ensure that it has the correct session ID, correct
-magic value, packet type, chunk index, and data CRC. The recipient has 2000
-ticks to respond to the initial `PKT` command and 5000 ticks to respond to a
-chunk that was sent. The initiator has 2000 ticks to send another chunk after
+magic value, packet type, chunk index, and data CRC. The recipient has 2000ms
+to respond to the initial `PKT` command and 5000ms to respond to a
+chunk that was sent. The initiator has 2000ms to send another chunk after
 the recipient has responded to the previous chunk.
 
 Do not respond with any other command other than `ACK` when `PKT` is received,
