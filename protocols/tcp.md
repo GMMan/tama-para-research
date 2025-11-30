@@ -177,15 +177,18 @@ initiator, although it may not be interpreted correctly if the recipient is
 expecting a chunk.
 
 The recipient has 2000ms to respond to the initial `PKT` command and 5000ms to
-respond to a chunk that was sent. The initiator has 2000ms to send another chunk
-after the recipient has responded to the previous chunk. The number of attempts
-for initiating a packet transfer or sending a chunk is three. If the attempts
-have been exceeded, a `CAN` command should be sent and the operation cancelled.
+respond to a chunk that was sent. The initiator has 2000ms to begin sending
+after the recipient has responded to the previous chunk. The timeout between
+each byte received depends on the current state as described. The number of
+attempts for initiating a packet transfer or sending a chunk is three. If the
+attempts have been exceeded, a `CAN` command should be sent and the operation
+cancelled.
 
-Do not respond with any other command other than `ACK` when `PKT` is received,
-otherwise unexpected behavior may be encountered. Do not send any custom
-commands during a packet transfer. A new `PKT` operation cannot be initiated
-while one is already ongoing.
+Do not respond with any other command other than `ACK`, `CAN`, or `ECHO` when
+`PKT` is received, otherwise unexpected behavior may be encountered. Custom
+commands may be sent from the recipient during a send packet operation, but is
+not encouraged. A new send packet operation cannot be initiated while one is
+already ongoing.
 
 The transfer is complete after the final chunk has been `ACK`ed, and a new
 operation can begin.
