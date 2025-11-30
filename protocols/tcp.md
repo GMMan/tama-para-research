@@ -1,25 +1,28 @@
 # Tamagotchi Paradise Prongs Protocol
 
-This document describes the protocol Tamagotchi Paradise uses to communicate with
-other units. It is split into two parts, the transport layer and the packet
+This document describes the protocol Tamagotchi Paradise uses to communicate
+with other units. It is split into two parts, the transport layer and the packet
 protocols.
 
 ## TCP Transport Layer
 
-Tamagotchi Paradise uses UART at 460800/8-N-1 and a protocol called TCP (not
-to be confused with the TCP in TCP/IP) to pass data between peers. The protocol
+Tamagotchi Paradise uses UART at 460800/8-N-1 and a protocol called TCP (not to
+be confused with the TCP in TCP/IP) to pass data between peers. The protocol
 consists of commands and payloads.
 
 ### Commands
 
-Commands are ASCII text and consist of one command word and zero or more parameters.
-Each command is on a separate line, with CRLF used for line endings.
+Commands are ASCII text and consist of one command word and up to seven
+parameters. Parameters are split by whitespaces (space, tab, CR, LF), and
+leading and trailing whitespaces ignored. Each command is on a separate line,
+with CRLF used for line endings. Commands should be kept to 16 characters or
+less, otherwise the earliest characters will be dropped.
 
 #### `PKT`
 
 Initiates packet transfer. Recipient should `ACK` to begin transfer.
 
-1 parameter: size of whole packet
+1 parameter: size of whole packet in decimal numbers
 
 #### `ACK`
 
@@ -27,14 +30,15 @@ Acknowledge successful reception of packet chunk.
 
 #### `NAK`
 
-Indicates reception of packet chunk is unsuccessful and requesting resend of chunk.
+Indicates reception of packet chunk is unsuccessful and requesting resend of
+chunk.
 
 #### `ENQ`
 
 Indicates out of sequence packet chunk received, and to reset packet chunk index
 and start resending from there.
 
-1 parameter: the index of the chunk to resend
+1 parameter: the index of the chunk to resend in decimal numbers
 
 #### `CAN`
 
@@ -55,25 +59,25 @@ processing.
 
 ### Payload
 
-Payloads are encrypted messages with headers for sending data between units.
-The data to be sent in a packet is divided into 0x1000-byte chunks, and each
-chunk has a chunk header prepended, and the chunk encrypted. The maximum payload
-size is 0x101000 bytes.
+Payloads are encrypted messages with headers for sending data between units. The
+data to be sent in a packet is divided into 0x1000-byte chunks, and each chunk
+has a chunk header prepended, and the whole chunk encrypted. The maximum payload
+size excluding headers is 0x100000 bytes.
 
 #### Encryption
 
 An encrypted chunk starts with a 32-bit random nonce, and each byte in the chunk
 after this is encrypted by generating a keystream using the nonce, and XORing
 the repeated keystream against the remaining data. Every time a byte in the
-keystream is used, it is updated by doubling the value and adding one.
-The encryption is symmetrical.
+keystream is used, it is updated by doubling the value and adding one. The
+encryption is symmetrical.
 
-For keystream generation, SHA-256 hash the nonce (in its binary form) together
-with the shared encryption secret.
+For keystream generation, SHA-256 hash the nonce (in its binary form) followed
+by the shared encryption secret.
 
 #### Chunk header
 
-The header is in this format:
+The header is in this format, with all members in little-endian:
 
 ```c
 struct tcp_chunk_header_t {
@@ -88,27 +92,28 @@ struct tcp_chunk_header_t {
 
 - `session_id`: identifies the session that this chunk belongs to
 - `magic`: the characters `TCP`
-- `type`: the lower 4 bits indicate the packet type; the next bit indicates whether
-  this packet is for setting the session ID
+- `type`: the lower 4 bits indicate the packet type; the next bit indicates
+  whether this packet is for setting the session ID. The recipient should always
+  accept a type with `0` in the lower 4 bits.
 - `chunk_index`: the current chunk's index within this packet
 - `chunk_index_comp`: complement of `chunk_index` by subtracting it from 0xff
 - `crc`: the CRC-16 checksum over the data following the chunk header; the
-  parameters for the CRC are polynomial `0x18005`, init value `0`, no output xor,
-  input and output reversed
+  parameters for the CRC are polynomial `0x18005`, init value `0`, no output
+  xor, input and output reversed
 
 ### Operations
 
 TCP supports three operations.
 
 In the following operation illustrations, `< ` indicates a message sent from the
-initiator's point of view, and `> ` indicates a message received by the initiator.
-The actual communication does not include these markers.
+initiator's point of view, and `> ` indicates a message received by the
+initiator. The actual communication does not include these markers.
 
 #### Echo
 
 To detect that the peer is ready to receive, an echo can be sent. Generally
-echoes are sent at 2000ms intervals. The peer has up to 500ms to respond,
-and the operation is tried up to three times before failing due to timeout.
+echoes are sent at 2000ms intervals. The peer has up to 500ms to respond, and
+the operation is tried up to three times before failing due to timeout.
 
 ```
 < ECHO REQ
@@ -127,22 +132,24 @@ for this operation is 2 bytes, and the contents are random.
 
 The main operation of TCP is to send packets of data. This happens by breaking
 the data into chunks and transmitting payload chunks. The operation initiates by
-the initiator sending a `PKT` command with the length of the packet. Once `ACK`ed,
-the initiator will send a chunk, and wait for the peer to respond with `ACK`,
-`NAK`, `ENQ`, or `CAN`. `ACK` triggers the next chunk to be sent, while `NAK`
-requests the chunk that was sent to be repeated. `ENQ` signals to the initiator
-to restart sending chunks at a specific index, while `CAN` indicates that the
-operation has been cancelled. `CAN` can be issued by either peers.
+the initiator sending a `PKT` command with the length of the packet. Once
+`ACK`ed, the initiator will send a chunk, and wait for the peer to respond with
+`ACK`, `NAK`, `ENQ`, or `CAN`. `ACK` triggers the next chunk to be sent, while
+`NAK` requests the chunk that was sent to be repeated. `ENQ` signals to the
+initiator to restart sending chunks at a specific index, while `CAN` indicates
+that the operation has been cancelled. `CAN` can be issued by either peers.
 
-The recipient should validate the chunk after
-reception and decryption to ensure that it has the correct session ID, correct
-magic value, packet type, chunk index, and data CRC. The recipient has 2000ms
-to respond to the initial `PKT` command and 5000ms to respond to a
-chunk that was sent. The initiator has 2000ms to send another chunk after
-the recipient has responded to the previous chunk.
+The recipient should validate the chunk after reception and decryption to ensure
+that it has the correct session ID, correct magic value, packet type, chunk
+index, and data CRC. The recipient has 2000ms to respond to the initial `PKT`
+command and 5000ms to respond to a chunk that was sent. The initiator has 2000ms
+to send another chunk after the recipient has responded to the previous chunk.
 
 Do not respond with any other command other than `ACK` when `PKT` is received,
 otherwise unexpected behavior may be encountered.
+
+The number of attempts for initiating a packet transfer or sending a chunk is
+three.
 
 Example operation with no issues:
 
@@ -189,7 +196,8 @@ Example operation with `ENQ`:
 > ACK
 ```
 
-It is unclear under what circumstances that an out of sequence chunk could occur.
+It is unclear under what circumstances that an out of sequence chunk could
+occur.
 
 Example operation with cancel:
 
@@ -232,8 +240,8 @@ commands. See [playdate flow doucment](playdate.md) for details.
    replies with its version
 2. Players select items to exchange
 3. The initiator (could be the other device) sends a 16-bit item ID
-4. The initiator sends an echo to the peer and waits for response; if a
-   response is not received, the connection is considered to have failed
+4. The initiator sends an echo to the peer and waits for response; if a response
+   is not received, the connection is considered to have failed
 5. The peer responds with its selected item ID
 
 ### Type `0x3`: Download
@@ -245,5 +253,5 @@ data size is 0x4000 or less, it is an item. Otherwise, it is a patch, up to
 ### Type `0xf`: Factory test
 
 These packets are sent in test mode, and also used as part of the sequence to
-enter factory mode. The packet is 256 bytes in size, and consists of either
-all `0xaa` or `0x55` bytes.
+enter factory mode. The packet is 256 bytes in size, and consists of either all
+`0xaa` or `0x55` bytes.
