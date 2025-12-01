@@ -54,14 +54,14 @@ struct sprite_img_def_t {
 #pragma pack(pop)
 
 enum sprite_img_flags_t {
-  flag_unknown01 = 1 << 0,
-  flag_unknown02 = 1 << 1,
-  flag_has_transparency = 1 << 2,
-  flag_unknown08 = 1 << 3,
-  flag_unknown10 = 1 << 4,
-  flag_compression_bytewise = 1 << 5,
-  flag_compression_wordwise = 1 << 6,
-  flag_encrypted = 1 << 7,
+    flag_unknown01 = 1 << 0,
+    flag_unknown02 = 1 << 1,
+    flag_has_transparency = 1 << 2,
+    flag_unknown08 = 1 << 3,
+    flag_unknown10 = 1 << 4,
+    flag_compression_bytewise = 1 << 5,
+    flag_compression_wordwise = 1 << 6,
+    flag_encrypted = 1 << 7,
 };
 ```
 
