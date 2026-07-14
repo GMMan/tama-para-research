@@ -34,14 +34,15 @@ struct ghost_data_t {
     };
     uint16_t chara_id;
     uint16_t eye_chara_id;
-    uint8_t color;
+    int8_t color;
     // note alignment padding
     str_char_t name[9][13];
     uint16_t stage;
     uint16_t species_rank;
+    uint16_t field_type;
     struct chara_flags_t chara_flags;
-    uint32_t reserved1;
-    uint32_t reserved2;
+    uint16_t reserved[3];
+    uint16_t real_chara_id;
     uint32_t total_length;
     struct data_entry_t sprite_locations[2][3];
     palette_color_t body_palette[16];
@@ -59,7 +60,7 @@ struct ghost_data_t {
   - `1`: genes package, including only eye sprites
 - `flags`: the field is 32-bit wide, so this is to keep more space than the
   default alignment will allocate
-- `chara_id`: the character's definition ID
+- `chara_id`: the character's effective definition ID
 - `eye_chara_id`: the definition ID of the character that the eyes were
   inherited from
 - `color`: `0`-`15` for predefined palette, `0xff` for original palette from
@@ -69,13 +70,21 @@ struct ghost_data_t {
 - `stage`: character's growth stage, `1-5`
 - `species_rank`: value that represents the care effort required to obtain the
   character
+- `field_type`: the character's native field type
+  - `1`: Land
+  - `2`: Water
+  - `3`: Sky
+  - `4`: Jade
+  - `5`: Tropics
+  - `6`: Glacier
 - `chara_flags`: character flags that can influence playdates (values will be
   moved to a different document when it's written)
   - `is_consumer = 1`: Consumer, may eat other tamas in playdate
   - `is_consumee = 2`: Consumee, may be eaten in playdate
   - `is_unbreedable = 4`: Cannot be bred with
-- `reserved1`: unreferenced
-- `reserved2`: unreferenced
+- `reserved`: unreferenced
+- `real_chara_id`: real character ID for ghosts from Lab Tama; unreferenced by
+  device
 - `total_length`: total length of ghost package
 - `sprite_locations`: stores the offset and length of sprite images in the ghost
   package. Offsets that are `0` means the sprite is not included. The first

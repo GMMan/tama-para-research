@@ -44,7 +44,7 @@ struct sprite_img_def_t {
     int8_t offset_y;
     uint8_t image_width;
     uint8_t image_height;
-    uint8_t unknown;
+    uint8_t palette_bpp;
     uint8_t num_palette_sets;
     uint16_t transparent_color_index;
     uint16_t palette_offset;
@@ -71,10 +71,12 @@ enum sprite_img_flags_t {
   0x7fffffff` and length for compressed pixel data or the amount of space the
   pixel data will take up for uncompressed pixel data.
 - `flags`
-  - `flag_unknown01`: unknown flag, always set to `1` and ignored on read
-  - `flag_unknown02`: unknown flag, always set to `1` and ignored on read
+  - `flag_has_sprites`: file contains sprites, always set to `1` and ignored on
+    read
+  - `flag_has_palette`: file contains palettes, always set to `1` and ignored on
+    read
   - `flag_has_transparency`: whether the sprite uses transparency
-  - `flag_unknown08`: unknown flag, always set to `0` and ignored on read
+  - `flag_reserved`: unused flag, always set to `0` and ignored on read
   - `flag_unknown10`: unknown flag, always set to `0` and ignored on read
   - `flag_compression_bytewise`: is using bytewise compression
   - `flag_compression_wordwise`: is using wordwise compression
@@ -83,13 +85,14 @@ enum sprite_img_flags_t {
     mutually exclusive. Any file with both flags set are invalid.
   - `flag_compression_bytewise`, `flag_compression_wordwise`, and
     `flag_encrypted` are not allowed when `bpp >= 16`.
-- `bpp`: indicates number of bits per pixel in pixel data.
-  - `0`: 1 bpp
-  - `1`: 2 bpp
-  - `2`: 4 bpp
-  - `3`: 8 bpp
-  - `4` to `15`: invalid, do not use
-  - `16` or higher: direct color in pixel data, always 16 bpp
+- `bpp`: indicates color format of the pixel data.
+  - `0x00`: indexed 1 bpp
+  - `0x01`: indexed 2 bpp
+  - `0x02`: indexed 4 bpp
+  - `0x03`: indexed 8 bpp
+  - `0x10`: direct color in pixel data, 16-bit RGB555 (treated as RGB565)
+  - `0x11`: direct color in pixel data, 16-bit RGB565
+  - `0x12`: direct color in pixel data, 24-bit RGB888 (treated as RGB565)
 - `num_sprites`: number of sprites in image
 - `sprite_width_px`: width of each sprite in pixels
 - `sprite_height_px`: height of each sprite in pixels
@@ -99,7 +102,8 @@ enum sprite_img_flags_t {
   positive
 - `image_width`: width of each subimage in number of sprites
 - `image_height`: height of each subimage in number of sprites
-- `unknown`: unknown field, always set to `17` and ignored on read
+- `palette_bpp`: indicates color format of the palette (see values from `bpp`
+  field), always set to `0x11` and ignored on read
 - `num_palette_sets`: number of palette sets in image
 - `transparent_color_index`: index of color in every palette set to be
   interpreted as transparent

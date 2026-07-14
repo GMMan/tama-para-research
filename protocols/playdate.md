@@ -10,7 +10,7 @@ A playdate exchange consists of several phases.
 
 1. Initial data exchange. Both peers send their ghost data, planet screenshot,
    and playdate data.
-2. Calculate friendship level and update. Initiator received peer's friendship
+2. Calculate friendship level and update. Initiator receives peer's friendship
    level from the playdate data, recalculates new friendship level, and sends
    the updated value back.
 3. Send playdate result after the animation has finished on the initiator. This
@@ -28,7 +28,7 @@ package sent is type 0.
 This is the format of the playdate data:
 
 ```c
-#pragma pack(push, 2)
+#pragma pack(push, 4)
 struct playdate_data_t {
     uint16_t force_send_away;
     uint16_t rom_type;
@@ -49,6 +49,9 @@ struct playdate_data_t {
   - `1`: Land
   - `2`: Water
   - `3`: Sky
+  - `4`: Jade
+  - `5`: Tropics
+  - `6`: Glacier
 - `friend_data`: a copy of the peer's friend record. See below
 - `hunger`: the peer's hunger level, `0-6`
 - `happiness`: the peer's happiness level, `0-20`
@@ -93,7 +96,7 @@ initiator to respond with the play result before completing the playdate.
 The playdate result data is in this format:
 
 ```c
-#pragma pack(push, 2)
+#pragma pack(push, 4)
 struct playdate_result_t {
     uint16_t result;
     uint16_t can_breed:1;
