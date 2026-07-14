@@ -28,7 +28,10 @@ Behavior is undefined if the value exceeds 1048576.
 
 #### `ACK`
 
-Acknowledge successful reception of packet chunk.
+Acknowledge successful reception of packet chunk. If session ID is being
+received, and both the initiator and recipient support the use of connectionless
+packets, the recipient should include additional parameter with value `1` to
+indicate support.
 
 #### `NAK`
 
@@ -101,8 +104,9 @@ struct tcp_chunk_header_t {
 - `magic`: the characters `TCP`
 - `type`: the lower 4 bits indicate the packet type; the next bit (bit 4)
   indicates whether this packet is for setting the session ID. The recipient
-  should always accept a type with `0` in the lower 4 bits. Bits 5-7 are
-  reserved and should be set to `0`, and must be ignored when reading.
+  should always accept a type with `0` in the lower 4 bits. Bit 5 indicates
+  whether connectionless packets are supported. Bits 6 and 7 are reserved and
+  should be set to `0`, and must be ignored when reading.
 - `chunk_index`: the current chunk's index within this packet, starting from `0`
   and incrementing with each successive chunk
 - `chunk_index_comp`: complement of `chunk_index` by subtracting it from 0xff
@@ -267,6 +271,60 @@ recommended to be decimal numbers.
 Unknown command handling is implementation-defined, but typically unknown
 commands are ignored.
 
+### Connectionless packets
+
+As of the third wave of Tamagotchi Paradise, a new packet type is available.
+This type is used when asynchronous communication is desirable, such as during
+connection minigames. This is used so that sending a packet does not require the
+recipient to reply back with acknowledgement, and both sides can send packets at
+the same time, achieving full-duplex communication.
+
+Whether connectionless packets are supported by the peer is sent as a flag in
+the normal TCP chunk header, and can be read when session ID is sent or on any
+subsequent chunk. The recipient is expected to reply with `ACK 1` when
+acknowledging a received chunk. If both initiator and recipient know they want
+to use connectionless packets, they can do so without initiating a packet
+transfer.
+
+Only one of regular packet transfers or connectionless packets can be active at
+a given time. The protocol does not specify when to transition between modes.
+This is decided by a shared understanding of the flow state between the
+initiator and the recipient.
+
+#### Packet format
+
+A packet consists of a header and the payload, encoded using Consistent Overhead
+Byte Stuffing (COBS).
+
+The header is in this format:
+
+```c
+struct tcp_cobs_header_t {
+    uint32_t session_id;
+    uint16_t checksum;
+    uint16_t padding;
+};
+```
+
+- `session_id`: identifies the session that this packet belongs to
+- `checksum`: additive bytewise checksum of the payload, mod 0x10000 to keep
+  within 16-bit limit
+- `padding`: unused, for alignment purpose; leave as `0`
+
+The payload can be up to 249 bytes, however due to COBS encoded size
+constraints, the practical maximum is 247 bytes.
+
+[COBS encoding](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing)
+is performed on a concatenation of the header and the payload. The encoded COBS
+packet must be no longer than 257 bytes in length.
+
+#### Connectionless echos
+
+Echos can be sent in connectionless packets. To request an echo, send `ECHORQ`
+as payload. Respond to echos by sending `ECHORP` as payload. Echo semantics are
+the same as with the `ECHO` command. Echos are automatically consumed, so do not
+use these exact payloads for other purposes.
+
 ## Packet protocols
 
 Note certain actions may be preceded with setting session ID.
@@ -285,8 +343,14 @@ commands. See [playdate flow document](playdate.md) for details.
 
 All data aside from step 4 sent as packet transfers
 
-1. Initiator sends the 32-bit release version (currently `1`), and the peer
-   replies with its version
+1. Initiator sends a 32-bit capabilities field, and the peer replies with its
+   capabilities field
+  - For wave 1, the field value is `1`
+  - For wave 2, the field value is `2`
+  - For wave 3, whether the peer supports connectionless packets is checked. If
+    supported, the value becomes a cumulative bitfield of supported waves'
+    content (for wave 3, bits 0, 1, and 2 are set, for a value of `7`). If not
+    supported, the value from wave 2 is used.
 2. Players select items to exchange
 3. The initiator (could be the other device) sends a 16-bit item ID
 4. The initiator sends an echo to the peer and waits for response; if a response
@@ -298,6 +362,12 @@ All data aside from step 4 sent as packet transfers
 Downloadable content from Lab Tama. The data is saved directly to flash. If the
 data size is 0x4000 or less, it is an item. Otherwise, it is a patch, up to
 0x10000 bytes in length.
+
+### Type `0x4`: Minigame
+
+Somewhat similar to playdates, consists of an exchange of ghost data, friend
+info exchange, gameplay packets, and the result. See minigame flow
+document (WIP) for details.
 
 ### Type `0xf`: Factory test
 
